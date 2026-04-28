@@ -1,0 +1,89 @@
+{
+  "_distiller": {
+    "comment_count": 11,
+    "max_paper_chars": 120000,
+    "model": "gemini-3-flash-preview"
+  },
+  "ablations_and_sensitivity": [
+    "Subspace dimension k: Performance generally improves with larger k (Table 5a).",
+    "Sample count m: m=k+1 (adaptive sampling) provides 1-2% gains on RTE over m=k (Table 5b).",
+    "Adaptive Noise: Critical for low-precision (bf16) performance; improves RTE on OPT-13B by 6.13% (Table 5d)."
+  ],
+  "baselines_and_comparisons": [
+    "Direct comparison against MeZO, MeZO-Adam, HiZOO, and LOZO across multiple model scales.",
+    "Koala discussion notes missing comparisons to recent subspace methods like AGZO and TeZO (comment:5aea8254)."
+  ],
+  "discussion_signals": [
+    "comment:4dced986: Identifies that the claimed 1/\u03b3 acceleration is a formal error as \u03b3 cancels out in Corollary 4.3.",
+    "comment:9444ca8c: Suggests precision robustness may be confounded by using larger/more robust backbones (OPT-13B) for low-precision runs.",
+    "comment:5aea8254: Points out that BSZO is mathematically equivalent to within-step Bayesian Linear Regression because the posterior is reset every step.",
+    "comment:c0e777b6: Questions the stationary Gaussian noise model for heterogeneous LLM parameter groups."
+  ],
+  "experimental_setup": [
+    "Models: RoBERTa-large (355M), OPT-1.3B, Mistral-7B (fp16), OPT-13B (bf16).",
+    "Tasks: 8 tasks from GLUE, SuperGLUE, and TREC (e.g., SST-2, RTE, WIC, TREC).",
+    "Baselines: MeZO, MeZO-Adam, HiZOO, LOZO.",
+    "Hardware: Single NVIDIA H200 GPU.",
+    "Hyperparameters: default subspace dim k=2, sample count m=3; perturbation scale \u03b5=1e-4; batch size 16."
+  ],
+  "extraction_confidence": "high",
+  "key_assumptions": [
+    "Loss function L is L-smooth.",
+    "Stochastic gradient has bounded variance (\u03c3g^2).",
+    "Finite-difference measurements can be modeled as linear observations with Gaussian noise.",
+    "Random Gaussian perturbation vectors are approximately orthogonal in high dimensions."
+  ],
+  "likely_accept_arguments": [
+    "Significant empirical performance gains on 13B models under low-precision constraints.",
+    "Strong practical value: matches inference memory footprint while fixing baseline collapse.",
+    "Principled Bayesian approach to direction aggregation is a significant conceptual step for ZO LLM tuning."
+  ],
+  "likely_reject_arguments": [
+    "Fundamental mathematical inconsistency in the primary theoretical contribution (the 1/\u03b3 factor).",
+    "Missing comparisons to key 2025/2026 subspace ZO baselines (AGZO, TeZO).",
+    "Inadequate isolation of the precision-robustness mechanism from model scale effects."
+  ],
+  "limitations_and_failure_modes": [
+    "Mathematical contradiction in convergence claim: Theorem 4.2 implies slowdown with shrinkage \u03b3, not acceleration by 1/\u03b3 (comment:4dced986).",
+    "Gaussian noise assumption may not hold for non-convex LLM loss landscapes due to third-order curvature effects (comment:c0e777b6).",
+    "Posterior is reset every step, meaning no gradient information is carried across optimization iterations (comment:5aea8254)."
+  ],
+  "main_contributions": [
+    "Introduction of BSZO, a ZO optimizer using Bayesian inference (Kalman filtering) for multi-directional gradient aggregation.",
+    "A residual-based adaptive mechanism for on-the-fly adjustment of the noise variance parameter.",
+    "Theoretical convergence analysis claiming a k/\u03b3 improvement factor over standard ZO methods.",
+    "Empirical validation across RoBERTa, Mistral, and OPT models showing robustness to fp16/bf16 precision and competitive memory efficiency (1.00x\u20131.08x of MeZO)."
+  ],
+  "method_summary": "BSZO treats gradient estimation as an inference problem by sampling k random directions to form a low-dimensional subspace at each step. It models the projected gradient as a latent variable and uses Kalman filtering to update a posterior distribution based on finite-difference measurements. A residual-based mechanism adaptively adjusts the noise variance (\u03c3e^2) based on the difference between observations and predictions. To minimize overhead, the method caches directional derivatives and typically uses m=k+1 forward passes, with the posterior mean serving as the parameter update direction.",
+  "novelty_signals": [
+    "First application of Kalman filtering to noisy gradient estimation for LLM fine-tuning (comment:760cb68c).",
+    "First-of-its-kind use of a residual-based adaptive noise mechanism for ZO precision robustness."
+  ],
+  "one_sentence_claim": "BSZO utilizes Kalman filtering to aggregate multiple zeroth-order gradient estimates within a subspace and adapts to noise variations, achieving superior robustness and accuracy in low-precision LLM fine-tuning.",
+  "paper_id": "9506ea3e-e66f-4fdc-be2e-f42de95f2875",
+  "red_flags": [
+    "Theoretical acceleration claim (1/\u03b3 factor) contradicts the derived theorem and optimization logic.",
+    "Confounding factors in robustness claims (backbone scale changes with precision).",
+    "Forward pass accounting discrepancy between manuscript and artifact README.",
+    "Lack of cross-step temporal state propagation despite the 'Kalman filter' framing."
+  ],
+  "reproducibility_signals": [
+    "GitHub repository provided (AeonianQuill/BSZO).",
+    "Discrepancy noted between paper (3 forward passes) and README/code logs (suggesting 4 forward passes) (comment:4b774c57).",
+    "Training logs and task-head initializations are not publicly available in the repo."
+  ],
+  "score_relevant_quotes": [
+    "\"BSZO improves the convergence rate by a factor of k/\u03b3 compared to standard ZO methods.\" (Abstract, p.1)",
+    "\"BSZO\u2019s memory footprint stays close to MeZO across three model scales\u2014ranging from 1.00\u00d7 to 1.08\u00d7 of MeZO\u2019s usage.\" (Section 5.4, p.7)",
+    "\"Theorem 4.2 (Equation 15) places \u03b3 in the denominator of the upper bound... Mathematically, this means that as \u03b3 decreases... the bound increases.\" (comment:4dced986)",
+    "\"adaptive noise brings improvements on 5 out of 6 tasks, with RTE gaining 6.13%.\" (Section 5.5, p.8)"
+  ],
+  "statistical_reporting": "Mean and standard deviation reported over 5 runs for RoBERTa-large tasks (Table 1).",
+  "strongest_results": [
+    "+6.67% absolute average improvement on OPT-13B compared to MeZO.",
+    "Superior stability in bf16/fp16 settings where HiZOO and LOZO suffer training collapse (e.g., TREC task).",
+    "Memory usage is 1.00x\u20131.08x of inference-only (MeZO), significantly lower than HiZOO (1.73x\u20131.96x).",
+    "Performance on TREC with OPT-13B: 79.2% (BSZO) vs 59.4% (MeZO)."
+  ],
+  "title": "Robust and Efficient Zeroth-Order LLM Fine-Tuning via Adaptive Bayesian Subspace Optimizer"
+}
