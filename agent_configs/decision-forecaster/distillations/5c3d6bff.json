@@ -1,0 +1,97 @@
+{
+  "_distiller": {
+    "comment_count": 11,
+    "max_paper_chars": 120000,
+    "model": "gemini-3-flash-preview"
+  },
+  "ablations_and_sensitivity": [
+    "Ablation study (Table 9) shows contributions from pruning certificates, coverage penalty, replication, and GP refinement.",
+    "Sensitivity analysis of CGP-Adaptive to the initial Lipschitz estimate (Table 5)."
+  ],
+  "baselines_and_comparisons": [
+    "Random Search, GP-UCB, TuRBO, HEBO, BORE, HOO, StoSOO, LIPO, SAASBO.",
+    "Comparison metrics: simple regret and wall-clock execution time (CGP is 6-8x faster than GP-based methods)."
+  ],
+  "discussion_signals": [
+    "cd0b758b: Theorem 5.1 point 4 clarifies that certificates may be invalid during the initial learning of L.",
+    "4df4016b: Identifies contradiction between 'anytime valid' claims and adaptive theory; flags questionable citation Shihab et al. (2025c).",
+    "edac7eeb: Notes 'volume gap' in high dimensions and dependence of certificates on heuristic CMA-ES performance.",
+    "d0b6dec2: Flags Factor-of-2 discrepancy in Theorem 4.6 and the fixed-center limitation of CGP-TR.",
+    "28b81e54: Criticizes benchmark selection and lack of alpha reporting (note: paper contains Table 10 with alpha estimates, contradicting this specific reviewer point)."
+  ],
+  "experimental_setup": [
+    "12 benchmarks spanning d=2 to d=100, including synthetic functions (Needle, Branin, Hartmann) and real-world tasks (Rover-60, NAS-36, MuJoCo-Ant-100).",
+    "Evaluated against 9 baselines: Random, GP-UCB, TuRBO, HEBO, BORE, HOO, StoSOO, LIPO, SAASBO.",
+    "30 independent runs per benchmark with sigma=0.1 noise.",
+    "Hardware: AMD EPYC 7763 CPU and NVIDIA A100 GPU."
+  ],
+  "extraction_confidence": "high",
+  "key_assumptions": [
+    "Assumption 2.1: f is L-Lipschitz continuous.",
+    "Assumption 2.2: Observational noise is sub-Gaussian.",
+    "Assumption 2.3: The function satisfies a margin/near-optimality dimension condition (alpha).",
+    "Compact metric space domain (typically [0,1]^d)."
+  ],
+  "likely_accept_arguments": [
+    "Novel framing of suboptimality certificates as computable objects.",
+    "Strong, broad empirical results across 12 benchmarks outperforming modern baselines.",
+    "Solid theoretical foundation for sample complexity matching optimal rates.",
+    "Significant computational speedup over GP-based methods."
+  ],
+  "likely_reject_arguments": [
+    "Overclaimed 'anytime' validity for the adaptive setting.",
+    "Technical errors in theorem statements and citation integrity.",
+    "Heuristic nature of high-dimensional implementation (CGP-TR) undercuts the theoretical 'principled' narrative."
+  ],
+  "limitations_and_failure_modes": [
+    "Method depends on the validity of the Lipschitz assumption.",
+    "Vanilla CGP is computationally restricted to d <= 15.",
+    "Adaptive certificates are only valid after the final doubling event (Theorem 5.1).",
+    "Score maximization relies on heuristic CMA-ES, which may fail to find the global optimum in the active set (risk of false pruning)."
+  ],
+  "main_contributions": [
+    "Formulation of explicit active sets (At) as computable first-class objects for pruning suboptimal regions.",
+    "Theoretical sample complexity of O(epsilon^{-(2+alpha)}) matching optimal lower bounds under a margin condition.",
+    "CGP-Adaptive: A doubling scheme for online learning of the Lipschitz constant L with O(log T) overhead.",
+    "CGP-TR: A trust region extension scaling to high dimensions (d=100) using local certificates.",
+    "CGP-Hybrid: A modular strategy that switches to GP refinement based on a local smoothness ratio."
+  ],
+  "method_summary": "CGP maintains an active set At = {x : Ut(x) >= lt} using a Lipschitz UCB envelope (Ut) and a global lower certificate (lt). Queries are selected via a score function that balances UCB values with domain coverage. The framework includes an adaptive doubling scheme for unknown L, a trust region variant (CGP-TR) with certified restarts for high-dimensional scaling, and a hybrid mode that triggers GP refinement when the local/global smoothness ratio (rho) falls below 0.5.",
+  "novelty_signals": [
+    "Exposing the active set as a computable runtime object rather than an analysis artifact (vs Zooming/HOO).",
+    "First anytime-computable certificate for stochastic Lipschitz optimization.",
+    "Combination of global Lipschitz pruning with local GP refinement."
+  ],
+  "one_sentence_claim": "The paper introduces Certificate-Guided Pruning (CGP), a framework for stochastic Lipschitz optimization that maintains an explicit active set to provide computable suboptimality certificates and provable shrinkage rates.",
+  "paper_id": "5c3d6bff-e8ce-4d9f-840b-719084582491",
+  "red_flags": [
+    "Headline claim of 'anytime valid' certificates is restricted to cases with known L (contradicted by Theorem 5.1).",
+    "Theorem 4.6 (Equation 3) omits a factor of 2 for gamma_t that is implied by the proof sketch.",
+    "Citation Shihab et al. (2025c) regarding LLM meta-RL appears irrelevant to the adaptive doubling scheme.",
+    "High-dimensional scaling (d=100) relies on heuristics (gap proxies, fixed centers) that weaken the principled framing."
+  ],
+  "reproducibility_signals": [
+    "Notation summary provided in Table 2.",
+    "Detailed pseudocode for CGP (Alg 1), Adaptive (Alg 2), TR (Alg 3), and Hybrid (Alg 4).",
+    "Appendix includes full proofs (App C), implementation details (App B), and baseline configurations (App E).",
+    "Statement that code will be available upon acceptance (Line 367)."
+  ],
+  "score_relevant_quotes": [
+    "\"Any point outside At is certifiably suboptimal with high probability\" (Line 008)",
+    "\"Certificate validity: Certificates are valid only after the final doubling (when L_hat >= L*)\" (Line 196)",
+    "\"In d > 20, we use the computable gap proxy... as the primary criterion\" (Line 394)",
+    "\"any x /\\notin At remains certifiably suboptimal regardless of which x \\in At is queried\" (Line 134)"
+  ],
+  "statistical_reporting": [
+    "Results reported as mean +/- standard error (SE) over 30 runs.",
+    "Statistical significance determined via Bonferroni-corrected t-tests (p < 0.05).",
+    "Empirical alpha estimates provided with 95% confidence intervals (Table 10)."
+  ],
+  "strongest_results": [
+    "CGP-Hybrid achieves the lowest simple regret across all 12 benchmarks compared to strong baselines like HEBO and TuRBO.",
+    "CGP-TR scales to d=100 and outperforms TuRBO by 9-12% while providing local certificates.",
+    "CGP-Adaptive is robust to 100x initial underestimation of L with minimal regret overhead (Table 5).",
+    "Empirical estimates of alpha are reported (Table 10), confirming alpha < d for all benchmarks."
+  ],
+  "title": "Certificate-Guided Pruning for Stochastic Lipschitz Optimization"
+}
