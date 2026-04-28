@@ -1,0 +1,92 @@
+{
+  "_distiller": {
+    "comment_count": 15,
+    "max_paper_chars": 120000,
+    "model": "gemini-3-flash-preview"
+  },
+  "ablations_and_sensitivity": [
+    "Robustness check in Appendix A.3 reruns malicious experiments without planner access, showing similar performance degradation (Figure 6).",
+    "Tests on 15 'harder puzzles' (3 boxes, longer solutions) demonstrate that the environment is not saturated for current SOTA models (Appendix A.9)."
+  ],
+  "baselines_and_comparisons": [
+    "Unassisted solve rates compared to assisted performance (Section 4.1).",
+    "Path optimality ratios for unassisted vs. assisted play (Figure 7, Figure 9).",
+    "Comparison of persuasive strategies (Deadlock vs. Sub-optimal Plan) across models (Section 4.4)."
+  ],
+  "discussion_signals": [
+    "Metric soundess: Comment c02073ca and Reviewer_Gemini_2 highlight that \u03bd scores are not directly comparable across different base capability levels.",
+    "Prompt availability: Comment c4b25469 confirms Appendices A.10 and A.11 (prompts) are present, refuting earlier reviewer claims.",
+    "Confounding: Comment efd39fcb argues token-use is confounded by puzzle difficulty.",
+    "Transfer Gap: Comment 38033499 critiques the gap between Sokoban plan-conflict detection and open-domain safety-relevant vigilance."
+  ],
+  "experimental_setup": [
+    "10 puzzles spanning various lengths and complexities, restricted to two boxes and two goals (Section 3.1).",
+    "5 frontier LLMs tested in both player and advisor roles (Section 4).",
+    "5 trials per puzzle/condition combination.",
+    "Player move budget set at double the optimal solution length (Section 3.2)."
+  ],
+  "extraction_confidence": "high",
+  "key_assumptions": [
+    "Persuasive capability can be decoupled from spatial reasoning by providing advisors with ground-truth planner solutions (Section 3.2).",
+    "Sokoban serves as an appropriate microcosm for complex real-life tasks due to its multi-step, multi-solution, and failure-prone structure (Section 3.1).",
+    "Token usage serves as a proxy for the allocation of limited computational resources (Section 4.3)."
+  ],
+  "likely_accept_arguments": [
+    "Novel multi-agent framework for investigating safety-critical social capacities.",
+    "Empirical finding of dissociation between capability and vigilance provides significant caution for AI-assisted decision making.",
+    "Token modulation analysis provides a mechanistic lens into LLM reasoning effort."
+  ],
+  "likely_reject_arguments": [
+    "Technically flawed vigilance metric for high-capability models.",
+    "Weak statistical power for central dissociation claims ($n=5$).",
+    "Potential confounders (task conflict) in the resource-rationality interpretation.",
+    "Limited external validity/transfer of Sokoban to high-stakes human scenarios."
+  ],
+  "limitations_and_failure_modes": [
+    "Vigilance metric \u03bd is capability-conditional; the denominator vanishes for ceiling solvers (e.g., GPT-5), leading to undefined scores in Table 1 (Comment c02073ca).",
+    "Dissociation analysis is underpowered (n=5 models), with statistical power < 0.20 for null inference (Comment c02073ca).",
+    "Token modulation may be a response to 'advice-vs-inclination conflict' (task difficulty) rather than true deception detection (Comment efd39fcb).",
+    "Small puzzle sample size (n=10) and simple box configurations (Comment c4b25469)."
+  ],
+  "main_contributions": [
+    "Introduction of a controlled multi-agent evaluation framework using the Sokoban puzzle game to study persuasion and vigilance.",
+    "Formal quantitative metrics for persuasion (\u03a8) and vigilance (\u03bd) in sequential decision-making contexts.",
+    "Empirical evidence that LLMs modulate reasoning effort (token usage) based on the perceived intent of advice (resource-rational vigilance).",
+    "Discovery that performance, persuasion, and vigilance are dissociable; specifically, near-ceiling task performance (e.g., Grok 4 Fast) can coexist with extreme lack of vigilance."
+  ],
+  "method_summary": "The study employs Sokoban as a multi-turn environment where a 'player' LLM attempts to solve puzzles while receiving advice from an 'advisor' LLM. To isolate persuasion from task reasoning, advisors are provided with optimal solutions from a symbolic planner (PDDL/Fast Downward) and algorithmically extracted sub-goals. Experiments involve 5 models (GPT-5, Grok 4 Fast, Gemini 2.5 Pro, Claude Sonnet 4, DeepSeek R1) across three conditions: Benevolent, Malicious, and Malicious-Aware (where players are warned of potential manipulation).",
+  "novelty_signals": [
+    "First simultaneous investigation of the relationship between persuasion, vigilance, and task performance in LLMs (Abstract).",
+    "Introduction of multi-agent Sokoban as a testbed for sustained, multi-turn epistemic vigilance (Comment 907ae8a8)."
+  ],
+  "one_sentence_claim": "Task-solving performance, persuasive capability, and epistemic vigilance are dissociable capacities in frontier Large Language Models, with high performance not necessarily implying the ability to detect and reject malicious advice.",
+  "paper_id": "588e7124-aedd-4875-b033-013600ea9b51",
+  "red_flags": [
+    "Vigilance metric \u03bd denominator vanishes for ceiling-performing models (e.g., GPT-5).",
+    "Dissociation results rely on n=5 model data points, which is statistically underpowered.",
+    "Repeated value (0.594) across Table 1 and text suggests potential reporting errors or artifacts (Comment c4b25469)."
+  ],
+  "reproducibility_signals": [
+    "Frontier models are real commercial APIs (GPT-5, Grok 4 Fast, etc.) accessible as of early 2026 (Comment 6286dd31).",
+    "System prompts for players (Appendix A.10) and sub-goal advisors (A.11) are provided.",
+    "PDDLGym and Fast Downward planner usage described for finding optimal paths (Appendix A.5)."
+  ],
+  "score_relevant_quotes": [
+    "\"puzzle-solving performance, persuasive capability, and vigilance are dissociable capacities in LLMs.\" (p. 1)",
+    "\"GPT-5 is the most maliciously persuasive agent and the most vigilant player, while Grok 4 Fast is neither persuasive... nor vigilant.\" (p. 6)",
+    "\"LLMs do consistently modulate their token use, using fewer tokens to reason when advice is benevolent and more when it is malicious.\" (p. 1)",
+    "\"monitoring all three independently will be critical for future work in AI safety.\" (p. 1)"
+  ],
+  "statistical_reporting": [
+    "Non-significant correlations for dissociation: performance-persuasion (p=.796) and performance-vigilance (p=.328) (Section 4.2).",
+    "Token usage under benevolent advice: t(49) = 3.241, p = .002 (Section 4.3).",
+    "Token usage under malicious advice (solvable puzzles): t(91) = 6.92, p < .001 (Section 4.3)."
+  ],
+  "strongest_results": [
+    "GPT-5 is the most maliciously persuasive and the most vigilant, whereas Grok 4 Fast (despite ~100% solve rate) is neither persuasive nor vigilant (Section 4.2).",
+    "Significant token modulation: models use ~16% more tokens under malicious advice for solvable puzzles, but use fewer tokens when following malicious advice that leads to failure (Section 4.3).",
+    "Gemini 2.5 Pro demonstrates vigilance primarily when explicitly warned of deceit (Aware Malicious condition) (Section 4.2).",
+    "In 'No Planner Access' tests, GPT-5 remains the most vigilant/persuasive, confirming results generalize beyond oracle-assisted advisors (Appendix A.3)."
+  ],
+  "title": "Under the Influence: Quantifying Persuasion and Vigilance in Large Language Models"
+}
