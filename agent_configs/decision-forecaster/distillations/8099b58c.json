@@ -1,0 +1,91 @@
+{
+  "_distiller": {
+    "comment_count": 12,
+    "max_paper_chars": 120000,
+    "model": "gemini-3-flash-preview"
+  },
+  "ablations_and_sensitivity": [
+    "Bandwidth sensitivity: Error generally increases with r, but paradoxically increases for very low r on Bunny/Sensor graphs (Fig 2).",
+    "Bit-level sensitivity: Evaluated for B=1, 2, and 4 bits."
+  ],
+  "baselines_and_comparisons": [
+    "SSS-R (Krahmer et al., 2023): SSNS is more accurate at low bandwidths, but SSS-R wins at high bandwidths (Fig 4).",
+    "MSQ: Significantly outperformed by SSNS in bandlimited reconstruction and halftoning.",
+    "SDW: Qualitative comparison in Fig 6 shows SSNS produces different halftoning artifacts."
+  ],
+  "discussion_signals": [
+    "comment:259fe1bd (Saviour): Algebraic error in Theorem 3.1 proof (line 423) involving coherence substitution.",
+    "comment:e2a02b7c (yashiiiiii): Scope of claim (exactly vs approximately bandlimited) is overstated.",
+    "comment:184f7354 (reviewer-3): Figure 4 refutes the SOTA claim at high bandwidths.",
+    "comment:c526bb53 (BoatyMcBoatface): Reproducibility gap in accelerated preprocessing routine.",
+    "comment:dc1002a9 (reviewer-2): Efficiency/scalability claims are unsupported without eigendecomposition analysis."
+  ],
+  "experimental_setup": [
+    "Topologies: 2D Grid, Bunny, Ring, Swiss-roll, Sensor, Minnesota graphs.",
+    "Metrics: Relative L2 reconstruction error ||L_r(f-q)||_2 / ||f||_2.",
+    "Baselines: SSS-R (Step-by-Step Serving with Replacement), MSQ, SDW (Sigma-Delta-Weight).",
+    "Qualitative Task: 3D halftoning of the Stanford Bunny z-coordinate mesh signal."
+  ],
+  "extraction_confidence": "High",
+  "key_assumptions": [
+    "Signal is exactly r-bandlimited (f = X_r alpha).",
+    "Undirected graph with symmetric, positive semi-definite normalized Laplacian.",
+    "Normalization of data to ||f||_\u221e = 1."
+  ],
+  "likely_accept_arguments": [
+    "Novel ability to perform 1-bit quantization on graphs.",
+    "Strong visual results in 3D halftoning applications.",
+    "Clear scaling relationship with bit-depth B."
+  ],
+  "likely_reject_arguments": [
+    "Technical error in the core theoretical bound (Theorem 3.1).",
+    "Overgeneralized claims regarding SOTA and robustness to real-world (non-exactly bandlimited) data.",
+    "Incomplete description of the accelerated algorithm (Alg 3) for reproducibility.",
+    "Limited scalability analysis."
+  ],
+  "limitations_and_failure_modes": [
+    "Restricted to exactly bandlimited signals; theory does not cover approximate bandlimiting.",
+    "Paradoxical error behavior at low bandwidths on irregular graphs (unexplained by authors).",
+    "Computational cost: requires full or partial eigendecomposition (O(N^3) or O(rN)).",
+    "Error bound depends on graph incoherence, which may be large for some topologies."
+  ],
+  "main_contributions": [
+    "A novel Single-Shot Noise Shaping (SSNS) quantization method for graph data.",
+    "Theoretical error bounds proving reconstruction quality scales as O(2^-B).",
+    "Extension to extreme 1-bit quantization where prior Sigma-Delta methods (requiring log log N bits) fail.",
+    "An accelerated preprocessing algorithm (Algorithm 3) achieving O(r^2 N) complexity."
+  ],
+  "method_summary": "SSNS uses a preprocessing step (based on Maly & Saab 2023) to transform an r-bandlimited signal f into a representation where all but at most r entries are at the boundaries of the quantization alphabet (\u00b11). This is achieved by iteratively moving in the kernel of the Graph Fourier Transform matrix until hitting the L-infinity ball boundary. Finally, Memoryless Scalar Quantization (MSQ) is applied to the preprocessed signal.",
+  "novelty_signals": [
+    "First method to provide 1-bit quantization for graph signals with theoretical guarantees (Sigma-Delta requires log log N bits).",
+    "Translation of single-shot noise shaping from neural network weights to graph manifolds."
+  ],
+  "one_sentence_claim": "The paper proposes SSNS, a single-shot noise-shaping method that enables reliable 1-bit quantization of bandlimited graph signals with theoretical error bounds.",
+  "paper_id": "8099b58c-8ff1-49c3-8f67-e2973aae3b69",
+  "red_flags": [
+    "Algebraic error in Theorem 3.1 proof (line 423) propagates to theorem statement.",
+    "State-of-the-art claim in Abstract is refuted by the paper's own Figure 4 (SSS-R is better at high bandwidths).",
+    "Efficiency claim ignores the O(N^3) or O(rN) cost of Laplacian eigendecomposition.",
+    "Paradoxical experimental results (error increasing as bandwidth decreases) are left unexplained."
+  ],
+  "reproducibility_signals": [
+    "Preprocessing pseudocode provided (Alg 1 and Alg 3).",
+    "Reproducibility gap identified for Alg 3: the 'N mod r != 0' case is unspecified (Comment c526bb53).",
+    "Source code not explicitly provided in the paper or metadata."
+  ],
+  "score_relevant_quotes": [
+    "\"The substitution 1 <= mu(X_r) sqrt(r/N) * ||alpha||_2 (line 423) is inconsistent with the paper's own formal definition of coherence mu (line 198).\" (Comment 259fe1bd)",
+    "\"On certain graphs such as bunny or sensor this trend is reversed for very small bandwidths... we could not find a satisfactory explanation.\" (Page 5, line 684)",
+    "\"We provided no robustness analysis of our method on approximately r-bandlimited data.\" (Page 7, line 896)"
+  ],
+  "statistical_reporting": [
+    "Results averaged over 20-50 random signal realizations.",
+    "Variance/standard deviation reporting is noted as missing by reviewers (Comment cd2908b8)."
+  ],
+  "strongest_results": [
+    "Empirical bit-depth scaling matches the theoretical O(2^-B) trend (Fig 5).",
+    "SSNS achieves 1-bit quantization with lower error than SSS-R at small to moderate bandwidths (Fig 4).",
+    "Visual 3D halftoning shows SSNS produces distinct, perceptually relevant patterns vs MSQ/SDW."
+  ],
+  "title": "Reliable one-bit quantization of bandlimited graph data via single-shot noise shaping"
+}
